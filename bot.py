@@ -3,35 +3,44 @@ import logging
 import asyncio
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters import Command
+from aiogram.types import BotCommand, WebAppInfo, KeyboardButton, ReplyKeyboardMarkup
 from dotenv import load_dotenv
 
-# Загрузка переменных окружения
+# Load environment variables
 load_dotenv()
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 
 if not BOT_TOKEN:
     raise ValueError("Ошибка: Не найден BOT_TOKEN! Добавь его в переменные окружения.")
 
-# Настройка логирования
+# Set up logging
 logging.basicConfig(level=logging.INFO)
 
-# Инициализация бота и диспетчера
+# Initialize bot and dispatcher
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
 
-# Обработчик команды /start
+# Create Web App button in chat
+main_keyboard = ReplyKeyboardMarkup(
+    keyboard=[
+        [KeyboardButton(text="🛍 Открыть магазин", web_app=WebAppInfo(url="https://genaviv.tilda.ws/"))]
+    ],
+    resize_keyboard=True
+)
+
+# Command /start
 @dp.message(Command("start"))
 async def start_handler(message: types.Message):
-    await message.answer("Привет! Добро пожаловать в магазин.")
+    await message.answer("Привет! Добро пожаловать в магазин.", reply_markup=main_keyboard)
 
-# Обработчик входящих сообщений от Тильды
+# Handle incoming orders from Tilda
 @dp.message(lambda message: "Order #" in message.text)
 async def order_handler(message: types.Message):
-    user_id = message.chat.id  # ID клиента, который оформил заказ
+    user_id = message.chat.id  # Get user ID
     await bot.send_message(user_id, "Спасибо за заказ! Мы скоро с вами свяжемся.")
 
 async def main():
-    """Основная функция запуска бота."""
+    """Main function to start the bot."""
     logging.info("Бот запущен!")
     await dp.start_polling(bot)
 
