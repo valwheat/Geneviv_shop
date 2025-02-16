@@ -24,10 +24,11 @@ dp = Dispatcher()
 async def start_handler(message: types.Message):
     await message.answer("Привет! Добро пожаловать в магазин.")
 
-# Обработчик данных из Web App
-@dp.message(lambda message: message.web_app_data)
-async def web_app_handler(message: types.Message):
-    await message.answer("Спасибо за заказ! Мы скоро с вами свяжемся.")
+# Обработчик входящих сообщений от Тильды
+@dp.message(lambda message: "Order #" in message.text)
+async def order_handler(message: types.Message):
+    user_id = message.chat.id  # ID клиента, который оформил заказ
+    await bot.send_message(user_id, "Спасибо за заказ! Мы скоро с вами свяжемся.")
 
 async def main():
     """Основная функция запуска бота."""
