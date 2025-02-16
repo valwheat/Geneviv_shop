@@ -28,19 +28,25 @@ main_keyboard = ReplyKeyboardMarkup(
     resize_keyboard=True
 )
 
-# Command /start
+# ✅ Registering the /start command
+@dp.message(Command("start"))
 async def start_handler(message: types.Message):
     await message.answer(
-        "Привет-привет! Лови приложение для просмотра каталога и оформления заказа в Genaviv. "
+        "Привет-привет! Лови приложение для просмотра каталога и оформления заказа в Genaviv.\n"
         "[Открыть магазин](https://t.me/Genaviv_Bot/Genaviv_Shop)",
-        parse_mode="Markdown"
+        parse_mode="MarkdownV2"
     )
 
-# Handle incoming orders from Tilda
+# ✅ Handle incoming orders from Tilda
 @dp.message(lambda message: "Order #" in message.text)
 async def order_handler(message: types.Message):
     user_id = message.chat.id  # Get user ID
     await bot.send_message(user_id, "Спасибо за заказ! Мы скоро с вами свяжемся.")
+
+# ✅ Handle unknown messages (optional)
+@dp.message()
+async def unknown_message(message: types.Message):
+    await message.answer("Я не понимаю это сообщение. Используйте команду /start.")
 
 async def main():
     """Main function to start the bot."""
