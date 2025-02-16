@@ -45,7 +45,7 @@
     <div class="container">
         <h2>Магазин ювелирных изделий</h2>
         <div class="product">
-            <img src="https://via.placeholder.com/200" alt="Пример товара">
+            <img src="https://raw.githubusercontent.com/valwheat/Geneviv_shop/main/IMG_9865.jpeg" alt="Кольцо Элегантность">
             <h3>Кольцо "Элегантность"</h3>
             <p>Цена: 5000 ₽</p>
             <button class="btn" onclick="orderProduct('Кольцо \"Элегантность\"', 5000)">Купить</button>
@@ -54,11 +54,26 @@
     
     <script>
         function orderProduct(name, price) {
-            Telegram.WebApp.sendData(JSON.stringify({
+            const orderData = {
                 product: name,
                 price: price
-            }));
+            };
+            
+            // Отправляем данные в бота
+            Telegram.WebApp.sendData(JSON.stringify(orderData));
+            
+            // Показываем сообщение об успехе
+            alert("Ваш заказ отправлен! Бот свяжется с вами.");
         }
+        
+        document.addEventListener("DOMContentLoaded", function() {
+            console.log("Mini App загружена");
+            if (typeof Telegram !== "undefined" && Telegram.WebApp) {
+                Telegram.WebApp.expand();
+            } else {
+                alert("Ошибка: Mini App не запущена внутри Telegram.");
+            }
+        });
     </script>
 </body>
 </html>
