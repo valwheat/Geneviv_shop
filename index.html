@@ -48,11 +48,25 @@
             <img src="https://raw.githubusercontent.com/valwheat/Geneviv_shop/main/IMG_9865.jpeg" alt="Кольцо Элегантность">
             <h3>Кольцо "Элегантность"</h3>
             <p>Цена: 5000 ₽</p>
-            <button class="btn" onclick="orderProduct('Кольцо \"Элегантность\"', 5000)">Купить</button>
+            <button class="btn" id="buyButton">Купить</button>
         </div>
     </div>
     
     <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            console.log("Mini App загружена");
+            if (typeof Telegram !== "undefined" && Telegram.WebApp) {
+                Telegram.WebApp.expand();
+            } else {
+                alert("Ошибка: Mini App не запущена внутри Telegram.");
+                console.error("Ошибка загрузки Telegram API");
+            }
+
+            document.getElementById("buyButton").addEventListener("click", function() {
+                orderProduct("Кольцо 'Элегантность'", 5000);
+            });
+        });
+        
         function orderProduct(name, price) {
             console.log("Кнопка нажата! Отправляем заказ...");
             
@@ -71,16 +85,6 @@
             Telegram.WebApp.sendData(JSON.stringify(orderData));
             alert("Ваш заказ отправлен! Бот свяжется с вами.");
         }
-        
-        document.addEventListener("DOMContentLoaded", function() {
-            console.log("Mini App загружена");
-            if (typeof Telegram !== "undefined" && Telegram.WebApp) {
-                Telegram.WebApp.expand();
-            } else {
-                alert("Ошибка: Mini App не запущена внутри Telegram.");
-                console.error("Ошибка загрузки Telegram API");
-            }
-        });
     </script>
 </body>
 </html>
