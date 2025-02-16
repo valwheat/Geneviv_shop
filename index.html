@@ -54,15 +54,21 @@
     
     <script>
         function orderProduct(name, price) {
+            console.log("Кнопка нажата! Отправляем заказ...");
+            
+            if (typeof Telegram === "undefined" || !Telegram.WebApp) {
+                alert("Ошибка: Mini App не запущена внутри Telegram.");
+                console.error("Telegram.WebApp не найден.");
+                return;
+            }
+            
             const orderData = {
                 product: name,
                 price: price
             };
             
-            // Отправляем данные в бота
+            console.log("Отправляем заказ в Telegram:", orderData);
             Telegram.WebApp.sendData(JSON.stringify(orderData));
-            
-            // Показываем сообщение об успехе
             alert("Ваш заказ отправлен! Бот свяжется с вами.");
         }
         
@@ -72,6 +78,7 @@
                 Telegram.WebApp.expand();
             } else {
                 alert("Ошибка: Mini App не запущена внутри Telegram.");
+                console.error("Ошибка загрузки Telegram API");
             }
         });
     </script>
