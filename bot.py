@@ -29,9 +29,12 @@ main_keyboard = ReplyKeyboardMarkup(
 )
 
 # Command /start
-@dp.message(Command("start"))
 async def start_handler(message: types.Message):
-    await message.answer("Привет! Добро пожаловать в магазин.", reply_markup=main_keyboard)
+    await message.answer(
+        "Привет-привет! Лови приложение для просмотра каталога и оформления заказа в Genaviv. "
+        "[Открыть магазин](https://t.me/Genaviv_Bot/Genaviv_Shop)",
+        parse_mode="Markdown"
+    )
 
 # Handle incoming orders from Tilda
 @dp.message(lambda message: "Order #" in message.text)
