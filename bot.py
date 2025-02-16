@@ -1,63 +1,46 @@
 import os
 import logging
+import asyncio
 from aiogram import Bot, Dispatcher, types
-from aiogram.client.default import DefaultBotProperties
-from aiogram.enums import ParseMode
 from aiogram.types import Message
-from aiogram.filters import CommandStart, Command
-from aiogram.fsm.storage.memory import MemoryStorage
-from aiogram.types import WebAppData
+from aiogram.utils import executor
+from aiogram.contrib.middlewares.logging import LoggingMiddleware
+from dotenv import load_dotenv
 
-# Загружаем токены из переменных окружения
+# Загрузка переменных окружения
+load_dotenv()
 BOT_TOKEN = os.getenv("BOT_TOKEN")
-ADMIN_CHANNEL_ID = os.getenv("ADMIN_CHANNEL_ID")  # ID админского канала
+ADMIN_CHANNEL_ID = os.getenv("ADMIN_CHANNEL_ID")
 
-# Проверка наличия переменных окружения
 if not BOT_TOKEN:
     raise ValueError("Ошибка: Не найден BOT_TOKEN! Добавь его в переменные окружения.")
-
 if not ADMIN_CHANNEL_ID:
     raise ValueError("Ошибка: Не найден ADMIN_CHANNEL_ID! Добавь его в переменные окружения.")
 
 # Логирование
 logging.basicConfig(level=logging.INFO)
 
-# Создание бота
-bot = Bot(token=BOT_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
-dp = Dispatcher(storage=MemoryStorage())
+# Инициализация бота
+bot = Bot(token=BOT_TOKEN)
+dp = Dispatcher(bot)
+dp.middleware.setup(LoggingMiddleware())
 
-# Обработчик команды /start
-@dp.message(CommandStart())
-async def start_handler(message: Message):
-    keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    keyboard.add(types.KeyboardButton(text="Открыть магазин", web_app=types.WebAppInfo(url="https://genaviv.tilda.ws/")))
-    
-    await message.answer(
-        "Добро пожаловать в магазин ювелирных украшений! 🛍\n"
-        "Выберите товар и оформите заказ прямо в Telegram.",
-        reply_markup=keyboard
-    )
+@dp.message_handler(commands=["start"])
+async def start_command(message: Message):
+    await message.answer("Привет! Добро пожаловать в магазин.")
 
-# Обработчик данных из Web App
-@dp.message()
-async def web_app_data_handler(message: Message):
-    if message.web_app_data:
-        try:
-            data = message.web_app_data.data  # JSON-данные от Web App
-            await bot.send_message(
-                ADMIN_CHANNEL_ID,
-                f"📦 Новый заказ!\n\n"
-                f"🛍 Товар: {data}"
-            )
-            await message.answer("✅ Заказ отправлен! Мы скоро свяжемся с вами. 😊")
-        except Exception as e:
-            logging.error(f"Ошибка обработки WebAppData: {e}")
-            await message.answer("❌ Ошибка при обработке заказа. Попробуйте ещё раз.")
+@dp.message_handler(content_types=types.ContentType.WEB_APP_DATA)
+async def handle_web_app_data(message: Message):
+    try:
+        data = message.web_app_data.data
+        await bot.send_message(ADMIN_CHANNEL_ID, f"🛍 Новый заказ: {data}")
+        await message.answer("Спасибо за заказ! Мы скоро с вами свяжемся.")
+    except Exception as e:
+        logging.error(f"Ошибка обработки заказа: {e}")
+        await message.answer("Произошла ошибка. Попробуйте снова.")
 
-# Запуск бота
 async def main():
-    await dp.start_polling(bot)
+    await dp.start_polling()
 
 if __name__ == "__main__":
-    import asyncio
     asyncio.run(main())
